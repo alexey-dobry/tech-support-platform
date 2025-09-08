@@ -1,5 +1,0 @@
-version: '3'
-
-tasks:
-  run_bot:
-    - go run ./cmd/main.go

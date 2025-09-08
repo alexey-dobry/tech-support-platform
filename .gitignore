@@ -6,6 +6,5 @@
 *.env
 !.example.env
 
-k8s/*.yaml
-k8s/*.toml
+k8s
 !k8s_exapmle/*.yaml
