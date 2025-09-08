@@ -3,19 +3,19 @@ package app
 import (
 	"log"
 
-	"database/sql"
-
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger"
 	"github.com/alexey-dobry/tech-support-platform/internal/services/auth_service/internal/config"
 	"github.com/alexey-dobry/tech-support-platform/internal/services/auth_service/internal/server"
+	"github.com/jackc/pgx/v5"
 )
 
 type App struct {
 	server *server.Server
 }
 
-func New(db *sql.DB) *App {
+func New(db *pgx.Conn, logger logger.Logger) *App {
 	a := App{
-		server: server.New(db),
+		server: server.New(db, logger),
 	}
 
 	log.Print("App instance created")
@@ -24,5 +24,5 @@ func New(db *sql.DB) *App {
 
 func (a *App) Run(cfg *config.Config) {
 	log.Print("App is running...")
-	a.server.Run(cfg)
+	a.server.Run(&cfg.Server)
 }

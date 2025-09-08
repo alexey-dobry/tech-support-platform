@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/alexey-dobry/tech-support-platform/internal/pkg/models"
@@ -14,16 +12,14 @@ func (s *Server) handleGetLoginData() gin.HandlerFunc {
 		DataFromBot := models.LoginData{}
 		if err := c.BindJSON(&DataFromBot); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-			log.Println("error: Could not bind json")
+			s.logger.Error("Could not bind json")
 			return
 		}
 
-		query := fmt.Sprintf("SELECT * FROM managers WHERE username='%s'", DataFromBot.Username)
-
-		data, err := s.database.Query(query)
+		data, err := s.database.Query(nil, "SELECT * FROM managers WHERE username=$1", DataFromBot.Username)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error retreaving data from database"})
-			log.Printf("error: could not querry data from database, errormsg: %s", err)
+			s.logger.Errorf("Could not querry data from database: %s", err)
 			return
 		}
 
@@ -33,7 +29,7 @@ func (s *Server) handleGetLoginData() gin.HandlerFunc {
 		err = data.Scan(&DataFromDB.Username, &DataFromDB.Password)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error decoding data from DB"})
-			log.Printf("error: %s", err)
+			s.logger.Error(err)
 			return
 		}
 		// Проверяем логин и пароль
