@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alexey-dobry/tech-support-platform/pkg/logger"
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
