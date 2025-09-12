@@ -3,7 +3,7 @@ package app
 import (
 	"log"
 
-	"github.com/alexey-dobry/tech-support-platform/internal/services/manager_bot_service/internal/bot"
+	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/bot"
 )
 
 type App interface {

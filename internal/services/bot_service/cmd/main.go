@@ -1,28 +1,28 @@
 package main
 
 import (
-	"log"
+	"time"
 
-	"github.com/alexey-dobry/tech-support-platform/internal/services/manager_bot_service/internal/app"
-	"github.com/alexey-dobry/tech-support-platform/internal/services/manager_bot_service/internal/bot"
-	"github.com/alexey-dobry/tech-support-platform/internal/services/manager_bot_service/internal/config"
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger/zap"
+	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/app"
+	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/bot"
+	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/config"
+	"gopkg.in/telebot.v4"
 )
 
 func main() {
-	log.Print("Building manager_bot_service...")
+	cfg := config.MustLoad()
 
-	cfg := config.Get()
+	logger := zap.NewLogger(cfg.Logger)
 
-	log.Print("Config read succesfully")
+	client, _ := telebot.NewBot(telebot.Settings{
+		Token:  cfg.Bot.Tocken,
+		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+	})
 
-	bot := bot.New(&cfg)
-
-	log.Print("Bot built succesfully")
+	bot := bot.New(client, logger)
 
 	app := app.New(bot)
 
-	log.Print("App build succesfully")
-
-	log.Print("Build complete, service is running...")
 	app.Run()
 }

@@ -1,10 +1,7 @@
 package bot
 
 import (
-	"log"
-	"time"
-
-	"github.com/alexey-dobry/tech-support-platform/internal/services/manager_bot_service/internal/config"
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger"
 	"gopkg.in/telebot.v4"
 )
 
@@ -13,28 +10,19 @@ type Bot interface {
 }
 
 type bot struct {
-	client *telebot.Bot
+	Client *telebot.Bot
+	Logger logger.Logger
 }
 
 // Создание инстанса бота
-func New(cfg *config.Config) Bot {
+func New(client *telebot.Bot, logger logger.Logger) Bot {
 	var b bot
-	client, err := telebot.NewBot(telebot.Settings{
-		Token:  8114672135:AAE_3GlOCpu_huPnuNbS3B8ooD0ogLCvUm8,
-		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
-	})
 
-	if err != nil {
-		log.Fatalf("error %s", err)
-	}
+	b.Logger = logger
 
-	b.client = client
-
-	log.Print("Initiating handlers...")
+	b.Client = client
 
 	b.initHandlers()
-
-	log.Print("Handlers intiated")
 
 	return &b
 }
@@ -42,22 +30,21 @@ func New(cfg *config.Config) Bot {
 // Инициализация функций бота
 func (b *bot) initHandlers() {
 	// Клиенты отправляют сообщения
-	b.client.Handle(telebot.OnText, b.HandleGetMsg())
+	b.Client.Handle(telebot.OnText, b.HandleGetMsg())
 
 	// Менеджер отвечает клиенту
-	b.client.Handle("/reply", b.HandleSendMsg())
+	b.Client.Handle("/reply", b.HandleSendMsg())
 
 	// Вход в систему(для менеджера)
-	b.client.Handle("/login", b.HandleAuth())
+	b.Client.Handle("/login", b.HandleAuth())
 
 	// Выход из системы(для менеджера)
-	b.client.Handle("/logout", b.HandleLogut())
+	b.Client.Handle("/logout", b.HandleLogut())
 
-	b.client.Handle("/end", b.handleEndTicket())
+	b.Client.Handle("/end", b.handleEndTicket())
 }
 
 // Запуск бота
 func (b *bot) Run() {
-	log.Println("Бот запущен!")
-	b.client.Start()
+	b.Client.Start()
 }
