@@ -20,7 +20,7 @@ type Config struct {
 	Port     string `yaml:"port" validate:"required" env:"PORT" env-default:"3306"`
 }
 
-func NewMySQL(cfg *Config) (*pgx.Conn, error) {
+func New(cfg Config) (*pgx.Conn, error) {
 	var db *pgx.Conn
 	var err error
 

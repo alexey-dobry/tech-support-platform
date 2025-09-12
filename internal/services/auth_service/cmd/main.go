@@ -14,7 +14,7 @@ func main() {
 
 	logger := zap.NewLogger(cfg.Logger)
 
-	db, err := db.NewMySQL(&cfg.DB)
+	db, err := db.New(cfg.DB)
 	if err != nil {
 		log.Fatal("Error creating database")
 	}
@@ -22,5 +22,5 @@ func main() {
 
 	App := app.New(db, logger)
 
-	App.Run(&cfg)
+	App.Run(cfg)
 }

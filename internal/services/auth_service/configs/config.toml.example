@@ -1,5 +1,0 @@
-[database]
-dsn = "root:mypassword@tcp(localhost:3307)/managerdb"
-
-[server]
-adress = ":8087"

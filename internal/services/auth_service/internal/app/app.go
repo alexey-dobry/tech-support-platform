@@ -22,7 +22,7 @@ func New(db *pgx.Conn, logger logger.Logger) *App {
 	return &a
 }
 
-func (a *App) Run(cfg *config.Config) {
+func (a *App) Run(cfg config.Config) {
 	log.Print("App is running...")
-	a.server.Run(&cfg.Server)
+	a.server.Run(cfg.Server)
 }

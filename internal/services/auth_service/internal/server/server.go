@@ -31,6 +31,6 @@ func New(db *pgx.Conn, logger logger.Logger) *Server {
 	return &s
 }
 
-func (s *Server) Run(cfg *Config) {
+func (s *Server) Run(cfg Config) {
 	log.Fatal(s.router.Run(":" + cfg.Port))
 }
