@@ -8,10 +8,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type Config struct {
-	Port string `yaml:"port" validate:"required" env:"PORT" env-default:"8080"`
-}
-
 type Server struct {
 	router   *gin.Engine
 	logger   logger.Logger
