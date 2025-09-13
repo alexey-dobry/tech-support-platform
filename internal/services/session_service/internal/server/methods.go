@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -15,9 +14,7 @@ func (s *Server) handleGetClientData() gin.HandlerFunc {
 
 		var activeSession models.Manager
 
-		query := fmt.Sprintf("SELECT * FROM sessions WHERE client_id=%s", ClientID)
-
-		data, err := s.database.Query(query)
+		data, err := s.database.Query(nil, "SELECT * FROM sessions WHERE client_id=$1", ClientID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error retreaving data from database"})
 			log.Printf("error: could not querry data from database, errormsg: %s", err)
@@ -41,9 +38,7 @@ func (s *Server) handleGetManagerData() gin.HandlerFunc {
 
 		var activeSession models.Manager
 
-		query := fmt.Sprintf("SELECT * FROM sessions WHERE manager_id=%s", managerID)
-
-		data, err := s.database.Query(query)
+		data, err := s.database.Query(nil, "SELECT * FROM sessions WHERE manager_id=$1", managerID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error retreaving data from database"})
 			log.Printf("error: could not querry data from database, errormsg: %s", err)
@@ -70,9 +65,7 @@ func (s *Server) handleAddNewManager() gin.HandlerFunc {
 			return
 		}
 
-		query := "INSERT INTO sessions (manager_id, is_free, client_id) VALUES ( ?, ?, ?)"
-
-		_, err := s.database.Exec(query, manager.ManagerID, true, 0)
+		_, err := s.database.Exec(nil, "INSERT INTO sessions (manager_id, is_free, client_id) VALUES ($1, $2, $3)", manager.ManagerID, true, 0)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error writing data to database"})
 			return
@@ -91,9 +84,7 @@ func (s *Server) handleAssingnManager() gin.HandlerFunc {
 			return
 		}
 
-		query := "SELECT * FROM sessions WHERE is_free=1"
-
-		data := s.database.QueryRow(query)
+		data := s.database.QueryRow(nil, "SELECT * FROM sessions WHERE is_free=1")
 		// if err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Error retreaving data from database"})
 		// 	log.Printf("error: could not querry data from database, errormsg: %s", err)
@@ -109,9 +100,7 @@ func (s *Server) handleAssingnManager() gin.HandlerFunc {
 			return
 		}
 
-		query = fmt.Sprintf("UPDATE sessions SET is_free=0,client_id=%d WHERE manager_id=%d", DataFromBot.ClientID, DataFromDB.ManagerID)
-
-		_, err = s.database.Exec(query)
+		_, err = s.database.Exec(nil, "UPDATE sessions SET is_free=0,client_id=$1 WHERE manager_id=$2", DataFromBot.ClientID, DataFromDB.ManagerID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error executing command"})
 			log.Printf("error executiong command: %s", err)
@@ -129,9 +118,7 @@ func (s *Server) handleFreeManager() gin.HandlerFunc {
 			return
 		}
 
-		query := fmt.Sprintf("UPDATE sessions SET is_free = TRUE, client_id=0 WHERE manager_id=%d", DataFromBot.ManagerID)
-
-		_, err := s.database.Exec(query)
+		_, err := s.database.Exec(nil, "UPDATE sessions SET is_free = TRUE, client_id=0 WHERE manager_id=$1", DataFromBot.ManagerID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error executing command"})
 			log.Println("Insert error:", err)
@@ -147,9 +134,7 @@ func (s *Server) handleEndSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		managerID := c.Param("manager_id")
 
-		query := fmt.Sprintf("DELETE FROM sessions WHERE manager_id=%s", managerID)
-
-		_, err := s.database.Exec(query)
+		_, err := s.database.Exec(nil, "DELETE FROM sessions WHERE manager_id=$1", managerID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Error executing command"})
 			log.Println("Insert error:", err)

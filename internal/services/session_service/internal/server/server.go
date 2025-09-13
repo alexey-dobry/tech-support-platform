@@ -1,22 +1,24 @@
 package server
 
 import (
-	"database/sql"
 	"log"
 
-	"github.com/alexey-dobry/tech-support-platform/internal/services/req_user_service/internal/config"
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 type Server struct {
 	router   *gin.Engine
-	database *sql.DB
+	logger   logger.Logger
+	database *pgx.Conn
 }
 
-func New(dataBase *sql.DB) *Server {
+func New(db *pgx.Conn, logger logger.Logger) *Server {
 	s := Server{
 		router:   gin.Default(),
-		database: dataBase,
+		logger:   logger,
+		database: db,
 	}
 
 	s.initRoutes()
@@ -25,6 +27,6 @@ func New(dataBase *sql.DB) *Server {
 	return &s
 }
 
-func (s *Server) Run(cfg *config.Config) {
-	log.Fatal(s.router.Run(":8070"))
+func (s *Server) Run(cfg Config) {
+	log.Fatal(s.router.Run(":" + cfg.Port))
 }

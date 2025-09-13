@@ -1,47 +1,63 @@
 package db
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
-	"github.com/alexey-dobry/tech-support-platform/internal/services/req_user_service/internal/config"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/jackc/pgx/v5"
+	_ "github.com/lib/pq"
+	"github.com/pressly/goose/v3"
 )
 
-func NewMySQL(cfg *config.Config) (*sql.DB, error) {
-	dsn := "root:mypassword@tcp(localhost:3308)/sessiondb"
+type Config struct {
+	User     string `yaml:"user" validate:"required" env:"USER" env-default:"user"`
+	Password string `yaml:"password" validate:"required" env:"PASSWORD" env-default:"password"`
+	Name     string `yaml:"name" validate:"required" env:"NAME" env-default:"greg"`
+	Host     string `yaml:"host" validate:"required" env:"HOST" env-default:"authdb"`
+	Port     string `yaml:"port" validate:"required" env:"PORT" env-default:"3306"`
+}
 
-	var db *sql.DB
+func New(cfg Config) (*pgx.Conn, error) {
+	var db *pgx.Conn
 	var err error
+
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
 
 	maxRetries := 10
 	delay := 3 * time.Second
 
 	for i := range maxRetries {
-		db, err = sql.Open("mysql", dsn)
+		db, err = pgx.Connect(context.Background(), connString)
 		if err == nil {
 			break
 		}
 
-		log.Printf("Store connection retry: %d of %d", i+1, maxRetries)
-
+		log.Printf("Database connection retry: %d of %d", i+1, maxRetries)
 		time.Sleep(delay)
 	}
 
 	if err != nil {
-		log.Fatalf("Undable to connect: %s", err)
-	} else {
-		log.Println("Successfully connected")
+		return nil, err
 	}
 
-	err = db.Ping()
-	log.Println("Testing the connection")
+	err = db.Ping(context.Background())
 	if err != nil {
-		log.Fatalf("Bad connection: %s; dsn: %s", err, dsn)
-	} else {
-		log.Println("Connection is good")
+		return nil, err
 	}
+
+	db_goose, err := sql.Open("postgres", connString)
+	if err != nil {
+		return nil, err
+	}
+
+	err = goose.Up(db_goose, "../migrations")
+	if err != nil {
+		return nil, err
+	}
+	db_goose.Close()
 
 	return db, nil
 }

@@ -1,34 +1,53 @@
 package config
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"os"
 
-	_ "github.com/alexey-dobry/tech-support-platform/internal/pkg/config"
-	"github.com/spf13/viper"
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger/zap"
+	"github.com/alexey-dobry/tech-support-platform/internal/pkg/validator"
+	"github.com/alexey-dobry/tech-support-platform/internal/services/session_service/internal/db"
+	"github.com/alexey-dobry/tech-support-platform/internal/services/session_service/internal/server"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	AuthServer AuthConfig `validate:"required" mapstructure:"server"`
+	Logger zap.Config    `yaml:"logger" validate:"required"`
+	Server server.Config `yaml:"server" validate:"required" env-prefix:"AUTH_SERVER_"`
+	DB     db.Config     `yaml:"database" validate:"required" env-prefix:"AUTH_DATABASE_"`
 }
 
-type AuthConfig struct {
-	MySqlDsn     string `validate:"required" mapstructure:"dsn"`
-	ServerAdress string `validate:"required" mapstructure:"adress"`
-}
+func MustLoad() Config {
+	var cfg Config
+	configPath := ParseFlag(cfg)
 
-func (cfg *Config) InitBotConfig() {
-	cfg.AuthServer.MySqlDsn = viper.GetString("database.dsn")
-	cfg.AuthServer.ServerAdress = viper.GetString("server.adress")
-}
+	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
+		log.Fatalf("Failed to read config on path(%s): %s", configPath, err)
+	}
 
-func Get() Config {
-	cfg := Config{}
-
-	cfg.InitBotConfig()
-
-	if err := viper.Unmarshal(&cfg); err != nil {
-		log.Fatalf("Config Unmarshal error: %s", err)
+	if err := validator.V.Struct(&cfg); err != nil {
+		log.Fatalf("Failed to validate config: %s", err)
 	}
 
 	return cfg
+}
+
+func ParseFlag(cfg Config) string {
+	configPath := flag.String("config", "./config/config.yaml", "config file path")
+	configHelp := flag.Bool("help", false, "show configuration help")
+
+	if *configHelp {
+		headerText := "Configuration options:"
+		help, err := cleanenv.GetDescription(&cfg, &headerText)
+		if err != nil {
+			log.Fatalf("error getting configuration description: %s", err)
+		}
+		fmt.Println(help)
+		os.Exit(0)
+	}
+
+	return *configPath
 }
