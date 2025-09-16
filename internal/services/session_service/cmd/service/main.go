@@ -20,7 +20,7 @@ func main() {
 	}
 	defer db.Close(nil)
 
-	App := app.New(db, logger)
+	App := app.New(db, logger, cfg.Server)
 
-	App.Run(cfg)
+	App.Run()
 }

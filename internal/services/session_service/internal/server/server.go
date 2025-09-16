@@ -9,16 +9,18 @@ import (
 )
 
 type Server struct {
-	router   *gin.Engine
-	logger   logger.Logger
-	database *pgx.Conn
+	serverAddress string
+	router        *gin.Engine
+	logger        logger.Logger
+	database      *pgx.Conn
 }
 
-func New(db *pgx.Conn, logger logger.Logger) *Server {
+func New(db *pgx.Conn, logger logger.Logger, port string) *Server {
 	s := Server{
-		router:   gin.Default(),
-		logger:   logger,
-		database: db,
+		serverAddress: port,
+		router:        gin.Default(),
+		logger:        logger,
+		database:      db,
 	}
 
 	s.initRoutes()
@@ -27,6 +29,6 @@ func New(db *pgx.Conn, logger logger.Logger) *Server {
 	return &s
 }
 
-func (s *Server) Run(cfg Config) {
-	log.Fatal(s.router.Run(":" + cfg.Port))
+func (s *Server) Run() {
+	log.Fatal(s.router.Run(":" + s.serverAddress))
 }

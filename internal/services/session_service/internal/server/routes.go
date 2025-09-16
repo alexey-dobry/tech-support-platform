@@ -8,7 +8,7 @@ func (s *Server) initRoutes() {
 	}
 
 	s.router.POST("/create", s.handleAddNewManager())
-	s.router.POST("/assign", s.handleAssingnManager())
+	s.router.POST("/assign", s.handleAssignManager())
 	s.router.POST("/end", s.handleFreeManager())
 	s.router.GET("/sessions/manager/:manager_id", s.handleGetManagerData())
 	s.router.GET("/sessions/client/:client_id", s.handleGetClientData())
