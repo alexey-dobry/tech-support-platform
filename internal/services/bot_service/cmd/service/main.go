@@ -20,7 +20,7 @@ func main() {
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	})
 
-	bot := bot.New(client, logger)
+	bot := bot.New(client, logger, cfg.Bot.AuthAddress)
 
 	app := app.New(bot)
 

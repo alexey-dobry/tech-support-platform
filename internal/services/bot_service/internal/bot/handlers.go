@@ -5,7 +5,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/bot/middleware"
 	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/session"
 	"gopkg.in/telebot.v4"
 )
@@ -70,7 +69,7 @@ func (b *bot) HandleAuth() telebot.HandlerFunc {
 		password := args[1]
 
 		// Отправляем запрос к микросервису
-		if middleware.Authenticate(login, password) {
+		if Authenticate(login, password, b.middlewareAddress) {
 			managerID := c.Sender().ID
 			if session.IsAuthorized(managerID) {
 				return c.Send("Вы уже вошли в аккаунт")

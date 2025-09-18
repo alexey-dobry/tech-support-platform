@@ -9,16 +9,14 @@ import (
 	"github.com/alexey-dobry/tech-support-platform/internal/pkg/logger/zap"
 	"github.com/alexey-dobry/tech-support-platform/internal/pkg/validator"
 	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/bot"
-	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/bot/middleware"
 	"github.com/alexey-dobry/tech-support-platform/internal/services/bot_service/internal/session"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Logger     zap.Config        `yaml:"logger" validate:"required"`
-	Bot        bot.Config        `yaml:"bot" validate:"required"`
-	Middleware middleware.Config `yaml:"auth" validate:"required"`
-	Session    session.Config    `yaml:"session" validate:"required"`
+	Logger  zap.Config     `yaml:"logger" validate:"required"`
+	Bot     bot.Config     `yaml:"bot" validate:"required"`
+	Session session.Config `yaml:"session" validate:"required"`
 }
 
 func MustLoad() Config {

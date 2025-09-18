@@ -10,17 +10,20 @@ type Bot interface {
 }
 
 type bot struct {
-	Client *telebot.Bot
-	Logger logger.Logger
+	middlewareAddress string
+	Client            *telebot.Bot
+	Logger            logger.Logger
 }
 
 // Создание инстанса бота
-func New(client *telebot.Bot, logger logger.Logger) Bot {
+func New(client *telebot.Bot, logger logger.Logger, port string) Bot {
 	var b bot
 
 	b.Logger = logger
 
 	b.Client = client
+
+	b.middlewareAddress = port
 
 	b.initHandlers()
 

@@ -1,15 +1,15 @@
-package middleware
+package bot
 
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
 
-func Authenticate(username, password string) bool {
-
+func Authenticate(username, password, port string) bool {
 	payload := map[string]string{
 		"username": username,
 		"password": password,
@@ -21,7 +21,9 @@ func Authenticate(username, password string) bool {
 		return false
 	}
 
-	resp, err := http.Post("http://localhost:8080/auth", "application/json", bytes.NewBuffer(jsonData))
+	address := fmt.Sprintf("http://localhost:%s/auth", port)
+
+	resp, err := http.Post(address, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println("Ошибка запроса к микросервису:", err)
 		return false
@@ -47,4 +49,5 @@ func Authenticate(username, password string) bool {
 	}
 
 	return response["status"] == "success"
+
 }
