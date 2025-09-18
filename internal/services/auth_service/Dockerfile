@@ -6,10 +6,6 @@ ENV CGO_ENABLED=0
 
 RUN apk update --no-cache && apk add --no-cache tzdata
 
-WORKDIR /app/pkg
-
-COPY internal/pkg .
-
 WORKDIR /app/service/build
 
 COPY internal/services/auth_service/go.mod .

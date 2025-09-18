@@ -12,7 +12,7 @@ import (
 func main() {
 	cfg := config.MustLoad()
 
-	logger := zap.NewLogger(cfg.Logger)
+	logger := zap.NewLogger(cfg.Logger).WithFields("service", "auth_service")
 
 	db, err := db.New(cfg.DB)
 	if err != nil {
@@ -20,7 +20,7 @@ func main() {
 	}
 	defer db.Close(nil)
 
-	App := app.New(db, logger)
+	app := app.New(db, logger, cfg.Server)
 
-	App.Run(cfg)
+	app.Run()
 }

@@ -53,7 +53,7 @@ func New(cfg Config) (*pgx.Conn, error) {
 		return nil, err
 	}
 
-	err = goose.Up(db_goose, "../migrations")
+	err = goose.Up(db_goose, "../migrations/auth")
 	if err != nil {
 		return nil, err
 	}
